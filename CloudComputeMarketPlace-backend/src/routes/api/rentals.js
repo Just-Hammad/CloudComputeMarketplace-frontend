@@ -1,0 +1,63 @@
+const express = require('express');
+const { check } = require('express-validator');
+const {
+  getRentals,
+  getRental,
+  createRental,
+  updateRentalStatus,
+  addAccessDetails
+} = require('../../controllers/rentalController');
+const validate = require('../../middleware/validator');
+const { protect } = require('../../middleware/auth');
+
+const router = express.Router();
+
+// All routes are protected
+router.use(protect);
+
+// Get all rentals
+router.get('/', getRentals);
+
+// Get single rental
+router.get('/:id', getRental);
+
+// Create new rental
+router.post(
+  '/',
+  [
+    check('computerId', 'Computer ID is required').not().isEmpty(),
+    // More flexible date validation - just check that the field exists
+    check('startDate', 'Start date is required').exists().notEmpty(),
+    check('endDate', 'End date is required').exists().notEmpty(),
+    check('rentalType', 'Rental type must be hourly, daily, weekly, or monthly')
+      .isIn(['hourly', 'daily', 'weekly', 'monthly']),
+  ],
+  validate,
+  createRental
+);
+
+// Update rental status
+router.put(
+  '/:id',
+  [
+    check('status', 'Status must be pending, active, completed, or cancelled')
+      .isIn(['pending', 'active', 'completed', 'cancelled']),
+  ],
+  validate,
+  updateRentalStatus
+);
+
+// Add access details to a rental
+router.put(
+  '/:id/access',
+  [
+    check('ipAddress', 'IP Address is required').not().isEmpty(),
+    check('username', 'Username is required').not().isEmpty(),
+    check('password', 'Password is required').not().isEmpty(),
+    check('accessUrl', 'Access URL is required').not().isEmpty()
+  ],
+  validate,
+  addAccessDetails
+);
+
+module.exports = router;
