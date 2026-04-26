@@ -1,0 +1,278 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.hamburger-menu {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hamburger-menu span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: #333;
+  transition: all 0.3s ease;
+}
+
+.title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Nimbus Logo Styling */
+.title-group .nimbus-logo {
+  display: flex;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  perspective: 400px;
+}
+
+.title-group .nimbus-logo span {
+  display: inline-block;
+  background: linear-gradient(135deg, #014247, #048b99);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.title-group .nimbus-logo span:nth-child(1) {
+  animation: header-float 3s ease-in-out infinite;
+}
+
+.title-group .nimbus-logo span:nth-child(2) {
+  animation: header-float 3s ease-in-out infinite 0.2s;
+}
+
+.title-group .nimbus-logo span:nth-child(3) {
+  animation: header-float 3s ease-in-out infinite 0.4s;
+}
+
+.title-group .nimbus-logo span:nth-child(4) {
+  animation: header-float 3s ease-in-out infinite 0.6s;
+}
+
+.title-group .nimbus-logo span:nth-child(5) {
+  animation: header-float 3s ease-in-out infinite 0.8s;
+}
+
+.title-group .nimbus-logo span:nth-child(6) {
+  animation: header-float 3s ease-in-out infinite 1s;
+}
+
+.title-group .nimbus-logo:hover span {
+  animation-play-state: paused;
+  text-shadow: 0 0 10px rgba(4, 139, 153, 0.4);
+}
+
+@keyframes header-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.header-nav {
+  display: flex;
+  gap: 2rem;
+}
+
+.header-nav a {
+  text-decoration: none;
+  color: #666;
+  padding: 0.5rem 1rem;
+  transition: color 0.3s ease;
+}
+
+.header-nav a:hover {
+  color: #333;
+}
+
+.header-nav a.active {
+  color: wheat;
+  font-weight: 500;
+}
+
+.header-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-profile {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.user-profile:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.user-icon {
+  font-size: 24px;
+  color: #64748b;
+}
+
+/* Message notification styles */
+.messages-icon-container {
+  position: relative;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.messages-icon {
+  font-size: 22px;
+  color: #64748b;
+}
+
+.messages-icon-container:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.messages-icon-container:hover .messages-icon {
+  color: #014247;
+}
+
+.unread-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: #e11d48;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 0;
+  font-size: 0.65rem;
+  font-weight: bold;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  min-width: 150px;
+  z-index: 1000;
+}
+
+.dropdown-menu button {
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  color: #1e293b;
+  transition: all 0.3s ease;
+}
+
+.dropdown-menu button:hover {
+  background: #f1f5f9;
+  color: var(--primary-color);
+}
+
+/* For user image when available */
+.user-profile img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  min-width: 150px;
+}
+
+.user-dropdown button {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: #333;
+}
+
+.user-dropdown button:hover {
+  background: #f5f5f5;
+}
+
+.add-computer-btn {
+  background-color: #014247;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-computer-btn:hover {
+  background-color: #014247;
+}
