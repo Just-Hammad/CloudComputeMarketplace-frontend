@@ -8,3 +8,4 @@ export const generateAvatarUrl = (username) => {
   const seed = username || 'anonymous';
   return `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(seed)}`;
 };
+
