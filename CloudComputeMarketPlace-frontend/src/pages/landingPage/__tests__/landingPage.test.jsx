@@ -6,19 +6,22 @@ import { ThemeProvider } from '../../../context/ThemeContext';
 import { SidebarProvider } from '../../../context/SidebarContext';
 import { DashboardModeProvider } from '../../../context/DashboardModeContext';
 import { StatsProvider } from '../../../context/StatsContext';
+import { AuthProvider } from '../../../context/AuthContext';
 
 describe('LandingPage', () => {
   it('renders without crashing', () => {
     const { container } = render(
       <MemoryRouter>
         <ThemeProvider>
-          <DashboardModeProvider>
-            <SidebarProvider>
-              <StatsProvider>
-                <LandingPage />
-              </StatsProvider>
-            </SidebarProvider>
-          </DashboardModeProvider>
+          <AuthProvider>
+            <DashboardModeProvider>
+              <SidebarProvider>
+                <StatsProvider>
+                  <LandingPage />
+                </StatsProvider>
+              </SidebarProvider>
+            </DashboardModeProvider>
+          </AuthProvider>
         </ThemeProvider>
       </MemoryRouter>,
     );
