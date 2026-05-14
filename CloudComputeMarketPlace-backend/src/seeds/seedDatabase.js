@@ -13,6 +13,8 @@ console.log(`MongoDB URI being used: ${process.env.MONGO_URI ? 'Found connection
 const User = require('../models/User');
 const Computer = require('../models/Computer');
 const Rental = require('../models/Rental');
+const Conversation = require('../models/Conversation');
+const Message = require('../models/Message');
 
 // Connect to DB
 const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://hammadarif564:hammad1234@cluster0.t3ayndk.mongodb.net/cloudcomputemarketplace?retryWrites=true&w=majority';
@@ -33,7 +35,7 @@ const users = [
   },
   {
     name: 'John Seller',
-    email: 'john@example.com',
+    email: 'seller@gmail.com',
     password: 'password123',
     profileType: 'seller',
     profilePicture: 'https://randomuser.me/api/portraits/men/2.jpg'
@@ -47,7 +49,7 @@ const users = [
   },
   {
     name: 'Bob Buyer',
-    email: 'bob@example.com',
+    email: 'buyer@gmail.com',
     password: 'password123',
     profileType: 'buyer',
     profilePicture: 'https://randomuser.me/api/portraits/men/4.jpg'
@@ -466,7 +468,9 @@ const importData = async () => {
   try {  // Clear existing data
     await User.deleteMany();
     await Computer.deleteMany();
-    await Rental.deleteMany();    
+    await Rental.deleteMany();
+    await Conversation.deleteMany();
+    await Message.deleteMany();
     console.log('Existing data cleared...');
 
     // Create users with hashed passwords
@@ -498,9 +502,9 @@ const importData = async () => {
     
     // Create specific test cases for the access details feature
     // Find users for our test scenarios
-    const johnUser = createdUsers.find(user => user.email === 'john@example.com');
+    const johnUser = createdUsers.find(user => user.email === 'seller@gmail.com');
     const adminUser = createdUsers.find(user => user.email === 'admin@example.com');
-    const bobUser = createdUsers.find(user => user.email === 'bob@example.com');
+    const bobUser = createdUsers.find(user => user.email === 'buyer@gmail.com');
     
     if (johnUser && adminUser && bobUser) {
       console.log('Creating specific test rentals to demonstrate access details feature...');
@@ -645,7 +649,120 @@ const importData = async () => {
       
     } else {
       console.log('Could not find required users for test case creation');
-    }// Update computers with reviews
+    }
+
+    // --------------------------------------------------------------
+    // Seed demo conversations + messages between buyers and sellers
+    // --------------------------------------------------------------
+    const sellerUser = createdUsers.find(u => u.email === 'seller@gmail.com');
+    const buyerUser = createdUsers.find(u => u.email === 'buyer@gmail.com');
+    const adminU = createdUsers.find(u => u.email === 'admin@example.com');
+    const janeUser = createdUsers.find(u => u.email === 'jane@example.com');
+    const aliceUser = createdUsers.find(u => u.email === 'alice@example.com');
+
+    const minutesAgo = (m) => new Date(Date.now() - m * 60 * 1000);
+
+    const chatScenarios = [];
+
+    // Pick a couple of seller computers to anchor conversations
+    const sellerComputers = createdComputers.filter(c =>
+      sellerUser && c.user.toString() === sellerUser._id.toString()
+    );
+    const janeComputers = createdComputers.filter(c =>
+      janeUser && c.user.toString() === janeUser._id.toString()
+    );
+
+    if (sellerUser && buyerUser && sellerComputers[0]) {
+      chatScenarios.push({
+        computer: sellerComputers[0]._id,
+        owner: sellerUser._id,
+        buyer: buyerUser._id,
+        messages: [
+          { sender: buyerUser._id, content: "Hi! Is this rig still available for the weekend?", minutesAgo: 180 },
+          { sender: sellerUser._id, content: "Hey! Yes it is — what dates are you looking at?", minutesAgo: 170 },
+          { sender: buyerUser._id, content: "Friday evening through Sunday night. Mostly Stable Diffusion training runs.", minutesAgo: 160 },
+          { sender: sellerUser._id, content: "Perfect use case. CUDA 12 + PyTorch are pre-installed. I'll send access details once you book.", minutesAgo: 150 },
+          { sender: buyerUser._id, content: "Great, booking now. Thanks!", minutesAgo: 30 },
+        ],
+      });
+    }
+
+    if (sellerUser && adminU && sellerComputers[1]) {
+      chatScenarios.push({
+        computer: sellerComputers[1]._id,
+        owner: sellerUser._id,
+        buyer: adminU._id,
+        messages: [
+          { sender: adminU._id, content: "Does this machine support Docker with GPU passthrough?", minutesAgo: 1440 },
+          { sender: sellerUser._id, content: "Yes, nvidia-container-toolkit is set up. Tested with the latest CUDA images.", minutesAgo: 1430 },
+          { sender: adminU._id, content: "Awesome. Any bandwidth caps I should know about?", minutesAgo: 1420 },
+          { sender: sellerUser._id, content: "1 Gbps symmetrical, no cap. Datacenter-grade uplink.", minutesAgo: 1410 },
+        ],
+      });
+    }
+
+    if (janeUser && buyerUser && janeComputers[0]) {
+      chatScenarios.push({
+        computer: janeComputers[0]._id,
+        owner: janeUser._id,
+        buyer: buyerUser._id,
+        messages: [
+          { sender: buyerUser._id, content: "Hi Jane, do you offer monthly discounts for long-running renders?", minutesAgo: 60 },
+          { sender: janeUser._id, content: "Hey! Yes, 15% off if you book 4+ weeks. Want me to apply it?", minutesAgo: 50 },
+          { sender: buyerUser._id, content: "Yes please, I'll book today.", minutesAgo: 10 },
+        ],
+      });
+    }
+
+    if (janeUser && aliceUser && janeComputers[1]) {
+      chatScenarios.push({
+        computer: janeComputers[1]._id,
+        owner: janeUser._id,
+        buyer: aliceUser._id,
+        messages: [
+          { sender: aliceUser._id, content: "Is the OS Windows or Linux on this one?", minutesAgo: 5 },
+        ],
+      });
+    }
+
+    let conversationsCreated = 0;
+    let messagesCreated = 0;
+    for (const scenario of chatScenarios) {
+      const sortedMessages = [...scenario.messages].sort((a, b) => b.minutesAgo - a.minutesAgo);
+      const lastMsg = sortedMessages[sortedMessages.length - 1];
+      const unreadBuyer = scenario.messages.filter(m => m.sender.toString() === scenario.owner.toString()).length > 0
+        ? Math.min(1, scenario.messages.filter(m => m.sender.toString() === scenario.owner.toString()).length)
+        : 0;
+      const unreadOwner = scenario.messages.filter(m => m.sender.toString() === scenario.buyer.toString()).length > 0
+        ? Math.min(1, scenario.messages.filter(m => m.sender.toString() === scenario.buyer.toString()).length)
+        : 0;
+
+      const conversation = await Conversation.create({
+        computer: scenario.computer,
+        owner: scenario.owner,
+        buyer: scenario.buyer,
+        lastMessage: lastMsg.content,
+        lastMessageDate: minutesAgo(lastMsg.minutesAgo),
+        unreadBuyer: lastMsg.sender.toString() === scenario.owner.toString() ? unreadBuyer : 0,
+        unreadOwner: lastMsg.sender.toString() === scenario.buyer.toString() ? unreadOwner : 0,
+        createdAt: minutesAgo(sortedMessages[0].minutesAgo),
+      });
+      conversationsCreated += 1;
+
+      for (const m of sortedMessages) {
+        await Message.create({
+          conversation: conversation._id,
+          sender: m.sender,
+          content: m.content,
+          isRead: m.minutesAgo > 60,
+          createdAt: minutesAgo(m.minutesAgo),
+        });
+        messagesCreated += 1;
+      }
+    }
+    console.log(`${conversationsCreated} conversations and ${messagesCreated} messages created...`);
+
+    // Update computers with reviews
     for (const computer of computerData) {
       if (computer.reviews && computer.reviews.length > 0) {
         await Computer.findByIdAndUpdate(computer._id, { 
@@ -671,6 +788,8 @@ const deleteData = async () => {
     await User.deleteMany();
     await Computer.deleteMany();
     await Rental.deleteMany();
+    await Conversation.deleteMany();
+    await Message.deleteMany();
 
     console.log('Data destroyed...');
     process.exit();
